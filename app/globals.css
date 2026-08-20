@@ -1,0 +1,203 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+:root {
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.546 0.245 262.881);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.49 0 0);
+  --accent: oklch(0.97 0.012 255);
+  --accent-foreground: oklch(0.29 0.09 263);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.91 0 0);
+  --input: oklch(0.91 0 0);
+  --ring: oklch(0.546 0.245 262.881);
+  --chart-1: oklch(0.546 0.245 262.881);
+  --chart-2: oklch(0.62 0.16 235);
+  --chart-3: oklch(0.5 0.11 290);
+  --chart-4: oklch(0.7 0.13 200);
+  --chart-5: oklch(0.42 0.18 265);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.546 0.245 262.881);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.96 0.015 255);
+  --sidebar-accent-foreground: oklch(0.29 0.09 263);
+  --sidebar-border: oklch(0.91 0 0);
+  --sidebar-ring: oklch(0.546 0.245 262.881);
+  --cv-blue: #244d73;
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { @apply font-sans; }
+  body { @apply m-0 bg-background text-foreground antialiased; }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+}
+
+.inspector-form { display: grid; gap: 1rem; }
+.canvas-stage { min-height: 100%; padding: 2rem clamp(0.75rem, 3.6vw, 3rem) 4rem; }
+.import-dropzone { display: grid; min-height: 9rem; width: 100%; place-items: center; align-content: center; gap: .45rem; border: 1px dashed var(--border); border-radius: .75rem; background: oklch(.985 0 0); padding: 1.25rem; color: var(--foreground); }
+.import-dropzone:hover { border-color: var(--primary); background: oklch(.98 .008 255); }
+.import-dropzone span { font-size: .7rem; color: var(--muted-foreground); }
+
+.template-option { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: .75rem; align-items: center; width: 100%; padding: .75rem; border: 1px solid var(--border); border-radius: .75rem; background: white; }
+.template-option:hover { border-color: color-mix(in oklab, var(--primary) 40%, var(--border)); background: oklch(.99 .004 255); }
+.template-option.is-active { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 13%, transparent); }
+.template-miniature { display: flex; flex-direction: column; gap: .28rem; width: 4.2rem; height: 5.4rem; padding: .75rem .55rem; border: 1px solid #e4e4e7; border-radius: .3rem; background: #fff; box-shadow: 0 3px 9px rgba(0,0,0,.06); }
+.template-miniature i { display: block; height: 2px; background: #a1a1aa; }
+.template-miniature i:first-child { width: 60%; height: 4px; margin: 0 auto .2rem; background: #27272a; }
+.miniature-harvard i:first-child { width: 75%; background: #5b1924; }
+.miniature-yale { border-left: 4px solid var(--cv-blue); }
+.miniature-yale i:first-child { margin-left: 0; background: var(--cv-blue); }
+
+.resume-paper {
+  --resume-font: Arial, Helvetica, sans-serif;
+  width: min(210mm, 100%);
+  aspect-ratio: 210 / 297;
+  margin: 0 auto;
+  padding: clamp(1.6rem, 7.5%, 3.75rem) clamp(1.35rem, 8%, 4rem);
+  color: #18181b;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(24, 24, 27, .12), 0 2px 8px rgba(24, 24, 27, .06);
+  font-family: var(--resume-font);
+  font-size: 10.5px;
+  line-height: 1.42;
+}
+.resume-font-calibri { --resume-font: Calibri, Carlito, Arial, sans-serif; }
+.resume-font-aptos { --resume-font: Aptos, "Segoe UI", Arial, sans-serif; }
+.resume-font-arial { --resume-font: Arial, Helvetica, sans-serif; }
+.resume-font-garamond { --resume-font: Garamond, Georgia, "Times New Roman", serif; }
+.resume-font-cambria { --resume-font: Cambria, Georgia, "Times New Roman", serif; }
+.cv-header { padding-bottom: 13px; border-bottom: 2px solid #27272a; text-align: center; }
+.cv-header h1 { margin: 0; font-family: var(--resume-font); font-size: 26px; font-weight: 700; line-height: 1.05; letter-spacing: .025em; text-transform: uppercase; }
+.cv-headline { margin: 6px 0 0; font-weight: 700; letter-spacing: .02em; }
+.cv-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; margin: 6px 0 0; font-size: 9px; }
+.cv-contact-item { display: inline-flex; align-items: baseline; }
+.cv-contact-separator { margin: 0 .45em; color: #71717a; }
+.cv-section { margin-top: 17px; break-inside: avoid-page; }
+.cv-section-title-row { position: relative; display: flex; align-items: center; gap: .4rem; }
+.cv-section h2 { flex: 1; margin: 0 0 9px; padding-bottom: 3px; border-bottom: 1px solid #27272a; font-family: var(--resume-font); font-size: 11px; font-weight: 700; line-height: 1.1; letter-spacing: .095em; text-transform: uppercase; }
+.cv-section-title-row > .cv-editor-controls { position: absolute; right: -1.6rem; top: -.38rem; }
+.cv-section p { margin: 0; }
+.cv-empty { padding: .5rem; border: 1px dashed #d4d4d8; color: #a1a1aa; font-style: italic; text-align: center; }
+.cv-entry { position: relative; margin: 0 0 11px; break-inside: avoid; }
+.cv-entry:last-child { margin-bottom: 0; }
+.cv-entry-head { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.cv-entry h3 { margin: 0; font-size: 10.5px; line-height: 1.3; }
+.cv-subhead { margin-top: 2px !important; font-style: italic; }
+.cv-date { flex: none; margin: 0; text-align: right; font-size: 9px; }
+.cv-date p { margin: 0; }
+.cv-entry ul { margin: 5px 0 0; padding-left: 15px; }
+.cv-entry li { position: relative; margin: 2px 0; padding-left: 2px; }
+.cv-url { margin-top: 2px !important; color: #475569; font-size: 9px; overflow-wrap: anywhere; }
+.publication strong { font-weight: 700; }
+.cv-skills { line-height: 1.7; }
+.cv-skill { position: relative; display: inline; }
+
+.editable-text { min-width: .35em; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; white-space: pre-wrap; transition: background-color .12s ease, box-shadow .12s ease; }
+.editable-text:hover { background: color-mix(in oklab, var(--primary) 7%, white); box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 12%, transparent); }
+.editable-text:focus, .editable-text[data-selected="true"] { background: color-mix(in oklab, var(--primary) 8%, white); box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 42%, transparent); outline: none; }
+.editable-text[data-empty="true"]::before { content: attr(data-placeholder); color: #a1a1aa; font-weight: 400; font-style: italic; }
+.editable-multiline { display: inline; }
+.cv-editable-entry { border-radius: 4px; }
+.cv-editable-entry:hover, .cv-editable-entry.is-selected { box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 10%, transparent); }
+.cv-entry-delete { position: absolute; z-index: 3; top: -.35rem; right: -1.65rem; opacity: 0; color: #dc2626; }
+.cv-editable-entry:hover > .cv-entry-delete, .cv-editable-entry:focus-within > .cv-entry-delete { opacity: 1; }
+.cv-bullet-delete { position: absolute; top: -.25rem; right: -1.65rem; opacity: 0; color: #dc2626; }
+.cv-entry li:hover > .cv-bullet-delete, .cv-entry li:focus-within > .cv-bullet-delete { opacity: 1; }
+.cv-add-bullet { list-style: none; margin-left: -15px !important; }
+.cv-add-bullet button { display: inline-flex; align-items: center; gap: .15rem; border: 0; background: transparent; color: var(--primary); font-size: 9px; font-weight: 700; }
+.cv-add-bullet svg { width: 10px; height: 10px; }
+.cv-skill-delete { width: 1rem !important; height: 1rem !important; margin: 0 .1rem; color: #dc2626; opacity: 0; vertical-align: middle; }
+.cv-skill:hover .cv-skill-delete, .cv-skill:focus-within .cv-skill-delete { opacity: 1; }
+
+.template-harvard { padding: 8% 9%; font-family: var(--resume-font); font-size: 10.5px; line-height: 1.48; }
+.template-harvard .cv-header { border-bottom: 3px double #292929; }
+.template-harvard .cv-header h1 { font-family: var(--resume-font); font-size: 29px; font-weight: 400; line-height: 1; letter-spacing: .06em; text-transform: none; }
+.template-harvard .cv-headline { font-style: italic; font-weight: 400; }
+.template-harvard .cv-section h2 { border: 0; text-align: center; font-family: var(--resume-font); font-size: 10.5px; font-weight: 700; line-height: 1.1; letter-spacing: .16em; }
+.template-harvard .cv-section h2::before, .template-harvard .cv-section h2::after { content: "—"; margin: 0 8px; color: #999; font-weight: 400; }
+.template-harvard .cv-entry h3 { font-family: var(--resume-font); }
+.template-yale { padding-left: 10%; border-left: 10px solid var(--cv-blue); font-family: var(--resume-font); }
+.template-yale .cv-header { padding-bottom: 7px; border: 0; text-align: left; }
+.template-yale .cv-header h1 { color: var(--cv-blue); font-size: 28px; letter-spacing: -.02em; text-transform: none; }
+.template-yale .cv-contact { justify-content: flex-start; color: #475569; }
+.template-yale .cv-section h2 { color: var(--cv-blue); border-bottom: 2px solid var(--cv-blue); }
+
+@media (max-width: 640px) {
+  .canvas-stage { padding: .75rem .4rem 2.5rem; }
+  .resume-paper { padding: 1.65rem 1.35rem; font-size: 8px; }
+  .cv-header h1 { font-size: 20px; }
+  .cv-section h2 { font-size: 9px; }
+  .cv-entry h3 { font-size: 8.5px; }
+  .cv-section-title-row > .cv-editor-controls, .cv-entry-delete, .cv-bullet-delete { right: -.95rem; }
+}
+
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body { width: 210mm; min-height: 297mm; background: #fff !important; }
+  [data-print-hidden="true"], [data-slot="sidebar"], [data-slot="sidebar-gap"], [data-slot="resizable-handle"], .cv-editor-controls { display: none !important; }
+  [data-slot="sidebar-wrapper"], [data-slot="sidebar-inset"], [data-slot="resizable-panel-group"], [data-slot="resizable-panel"] { display: block !important; width: 210mm !important; height: auto !important; min-height: 0 !important; margin: 0 !important; overflow: visible !important; background: #fff !important; }
+  [data-slot="resizable-panel"]:last-child { display: none !important; }
+  [data-radix-scroll-area-viewport], .canvas-stage { display: block !important; width: 210mm !important; height: auto !important; padding: 0 !important; overflow: visible !important; }
+  .resume-paper { width: 210mm; max-width: none; min-height: 297mm; aspect-ratio: auto; margin: 0; padding: 16mm 17mm; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .resume-paper * { caret-color: transparent !important; }
+  .editable-text, .editable-text:hover, .editable-text:focus, .editable-text[data-selected="true"], .cv-editable-entry:hover, .cv-editable-entry.is-selected { background: transparent !important; box-shadow: none !important; outline: none !important; }
+  .editable-text[data-empty="true"]::before, .cv-empty, [data-empty="true"], [data-empty-entry="true"], [data-empty-section="true"] { display: none !important; }
+  .template-yale { padding-left: 21mm; }
+}
