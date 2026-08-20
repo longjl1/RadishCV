@@ -8,6 +8,7 @@ A local-first resume/CV builder with optional Kimi or DeepSeek editing. It accep
 - Fill structured Profile, Experience, Education, Publications, Projects, and Skills sections.
 - Edit every visible CV field directly on the A4 canvas, with the right-hand form kept in sync.
 - Add and remove entries and bullets from the document itself; complete-entry deletion requires confirmation.
+- Rename, remove, and restore standard CV sections, or add free-text custom sections from the sidebar.
 - Parse a text draft into structured fields with Kimi or DeepSeek.
 - Improve wording against an optional job description with an explicit no-fabrication system prompt.
 - Choose MIT Classic, Harvard Academic, or Yale Modern layouts.

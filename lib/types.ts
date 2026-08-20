@@ -60,28 +60,51 @@ export type ResumeData = {
   skills: string[];
 };
 
+export const resumeSectionIds = ["basics", "experience", "education", "publications", "projects", "skills"] as const;
+
+export type ResumeSectionId = (typeof resumeSectionIds)[number];
+
+export type ResumeSectionSetting = {
+  enabled: boolean;
+  title: string;
+};
+
+export type ResumeSectionSettings = Record<ResumeSectionId, ResumeSectionSetting>;
+
+export type CustomSectionItem = {
+  id: string;
+  text: string;
+};
+
+export type CustomSection = {
+  id: string;
+  title: string;
+  items: CustomSectionItem[];
+};
+
 export type ResumeState = {
   data: ResumeData;
   template: TemplateId;
   font: ResumeFontId;
   provider: ProviderId;
   jobDescription: string;
+  sectionSettings: ResumeSectionSettings;
+  customSections: CustomSection[];
 };
 
-export type ResumeSectionId =
-  | "basics"
-  | "experience"
-  | "education"
-  | "publications"
-  | "projects"
-  | "skills";
-
-export type EditorSelection = {
-  section: ResumeSectionId;
-  entryId?: string;
-  field?: string;
-  index?: number;
-};
+export type EditorSelection =
+  | {
+      section: ResumeSectionId;
+      entryId?: string;
+      field?: string;
+      index?: number;
+    }
+  | {
+      section: "custom";
+      sectionId: string;
+      entryId?: string;
+      field?: "text";
+    };
 
 export type ResumeEditAction =
   | { type: "basics"; field: keyof Basics; value: string }
@@ -91,7 +114,8 @@ export type ResumeEditAction =
   | { type: "education"; id: string; field: Exclude<keyof Education, "id">; value: string }
   | { type: "publication"; id: string; field: Exclude<keyof Publication, "id">; value: string }
   | { type: "project"; id: string; field: Exclude<keyof Project, "id">; value: string }
-  | { type: "skill"; index: number; value: string };
+  | { type: "skill"; index: number; value: string }
+  | { type: "custom-item"; sectionId: string; id: string; value: string };
 
 export type ResumeAddAction =
   | { type: "experience" }
@@ -99,7 +123,8 @@ export type ResumeAddAction =
   | { type: "education" }
   | { type: "publication" }
   | { type: "project" }
-  | { type: "skill" };
+  | { type: "skill" }
+  | { type: "custom-item"; sectionId: string };
 
 export type ResumeDeleteAction =
   | { type: "experience"; id: string }
@@ -107,7 +132,23 @@ export type ResumeDeleteAction =
   | { type: "education"; id: string }
   | { type: "publication"; id: string }
   | { type: "project"; id: string }
-  | { type: "skill"; index: number };
+  | { type: "skill"; index: number }
+  | { type: "custom-item"; sectionId: string; id: string };
+
+export const defaultSectionTitles: Record<ResumeSectionId, string> = {
+  basics: "Profile",
+  experience: "Experience",
+  education: "Education",
+  publications: "Publications",
+  projects: "Selected Projects",
+  skills: "Skills",
+};
+
+export function createDefaultSectionSettings(): ResumeSectionSettings {
+  return Object.fromEntries(
+    resumeSectionIds.map((id) => [id, { enabled: true, title: defaultSectionTitles[id] }]),
+  ) as ResumeSectionSettings;
+}
 
 export const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
