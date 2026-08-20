@@ -1,9 +1,37 @@
-import type { ResumeData, ResumeState } from "./types";
+import { createDefaultSectionSettings, resumeSectionIds, type CustomSection, type ResumeData, type ResumeSectionSettings, type ResumeState } from "./types";
 
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 const list = (value: unknown) => Array.isArray(value) ? value.map(text).filter(Boolean).slice(0, 20) : [];
 const rows = (value: unknown) => Array.isArray(value) ? value.slice(0, 30) : [];
 const record = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+
+function normalizeSectionSettings(value: unknown, fallback: ResumeSectionSettings): ResumeSectionSettings {
+  const root = record(value);
+  const defaults = createDefaultSectionSettings();
+  return Object.fromEntries(resumeSectionIds.map((id) => {
+    const setting = record(root[id]);
+    const fallbackSetting = fallback[id] ?? defaults[id];
+    return [id, {
+      enabled: id === "basics" ? true : typeof setting.enabled === "boolean" ? setting.enabled : fallbackSetting.enabled,
+      title: text(setting.title) || fallbackSetting.title,
+    }];
+  })) as ResumeSectionSettings;
+}
+
+function normalizeCustomSections(value: unknown): CustomSection[] {
+  return rows(value).map((item, sectionIndex) => {
+    const section = record(item);
+    const sectionId = text(section.id) || `custom-${sectionIndex}-${Date.now()}`;
+    const items = rows(section.items).map((itemValue, itemIndex) => {
+      const itemRecord = record(itemValue);
+      return {
+        id: text(itemRecord.id) || `${sectionId}-item-${itemIndex}-${Date.now()}`,
+        text: text(itemRecord.text),
+      };
+    });
+    return { id: sectionId, title: text(section.title) || "Custom Section", items };
+  }).slice(0, 20);
+}
 
 export function normalizeResume(value: unknown): ResumeData {
   const root = record(value);
@@ -46,5 +74,7 @@ export function normalizeState(value: unknown, fallback: ResumeState): ResumeSta
     font,
     provider,
     jobDescription: text(root.jobDescription),
+    sectionSettings: normalizeSectionSettings(root.sectionSettings, fallback.sectionSettings),
+    customSections: Array.isArray(root.customSections) ? normalizeCustomSections(root.customSections) : fallback.customSections,
   };
 }

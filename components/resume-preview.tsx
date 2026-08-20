@@ -5,13 +5,14 @@ import { EditableText } from "@/components/editable-text";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type {
+  CustomSection,
   EditorSelection,
   ResumeAddAction,
   ResumeData,
   ResumeDeleteAction,
   ResumeEditAction,
   ResumeFontId,
-  ResumeSectionId,
+  ResumeSectionSettings,
   TemplateId,
 } from "@/lib/types";
 
@@ -19,6 +20,8 @@ type Props = {
   data: ResumeData;
   template: TemplateId;
   font: ResumeFontId;
+  sectionSettings: ResumeSectionSettings;
+  customSections: CustomSection[];
   editable?: boolean;
   selection?: EditorSelection;
   focusRequest?: { key: string; nonce: number } | null;
@@ -28,23 +31,25 @@ type Props = {
   onDelete?: (action: ResumeDeleteAction) => void;
 };
 
-const isSelected = (selection: EditorSelection | undefined, target: EditorSelection) =>
-  selection?.section === target.section &&
-  selection?.entryId === target.entryId &&
-  selection?.field === target.field &&
-  selection?.index === target.index;
+const isSelected = (selection: EditorSelection | undefined, target: EditorSelection) => {
+  if (!selection || selection.section !== target.section) return false;
+  if (selection.section === "custom" && target.section === "custom" && selection.sectionId !== target.sectionId) return false;
+  return selection.entryId === target.entryId && selection.field === target.field &&
+    (selection.section === "custom" || target.section === "custom" || selection.index === target.index);
+};
 
-function Section({ id, title, editable, empty, onSelect, onAdd, children }: {
-  id: ResumeSectionId;
+function Section({ id, title, editable, empty, printEmpty = empty, onSelect, onAdd, children }: {
+  id: string;
   title: string;
   editable?: boolean;
   empty?: boolean;
+  printEmpty?: boolean;
   onSelect?: () => void;
   onAdd?: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <section id={id === "basics" ? undefined : `cv-section-${id}`} data-empty-section={empty || undefined} className="cv-section scroll-mt-20" onClick={onSelect}>
+    <section id={id === "basics" ? undefined : `cv-section-${id}`} data-empty-section={printEmpty || undefined} className="cv-section scroll-mt-20" onClick={onSelect}>
       <div className="cv-section-title-row">
         <h2>{title}</h2>
         {editable && onAdd && (
@@ -60,7 +65,7 @@ function Section({ id, title, editable, empty, onSelect, onAdd, children }: {
   );
 }
 
-export function ResumePreview({ data, template, font, editable = false, selection, focusRequest, onSelect = () => undefined, onCommit = () => undefined, onAdd = () => undefined, onDelete = () => undefined }: Props) {
+export function ResumePreview({ data, template, font, sectionSettings, customSections, editable = false, selection, focusRequest, onSelect = () => undefined, onCommit = () => undefined, onAdd = () => undefined, onDelete = () => undefined }: Props) {
   const field = (
     value: string,
     placeholder: string,
@@ -87,6 +92,11 @@ export function ResumePreview({ data, template, font, editable = false, selectio
 
   const basicsTarget = (fieldName: keyof ResumeData["basics"]): EditorSelection => ({ section: "basics", field: fieldName });
   const visible = (hasContent: boolean) => editable || hasContent;
+  const experienceHasContent = data.experience.some((item) => [item.company, item.role, item.location, item.start, item.end, ...item.highlights].some(Boolean));
+  const educationHasContent = data.education.some((item) => [item.school, item.degree, item.field, item.location, item.start, item.end, item.details].some(Boolean));
+  const publicationsHaveContent = data.publications.some((item) => [item.authors, item.title, item.venue, item.year, item.url].some(Boolean));
+  const projectsHaveContent = data.projects.some((item) => [item.name, item.role, item.date, item.description, item.url].some(Boolean));
+  const skillsHaveContent = data.skills.some(Boolean);
 
   return (
     <article id="resume-document" className={`resume-paper template-${template} resume-font-${font}`} aria-label="Editable resume document">
@@ -104,13 +114,13 @@ export function ResumePreview({ data, template, font, editable = false, selectio
       </header>
 
       {visible(Boolean(data.basics.summary)) && (
-        <Section id="basics" title="Profile" empty={!data.basics.summary} onSelect={() => onSelect({ section: "basics", field: "summary" })}>
+        <Section id="basics" title={sectionSettings.basics.title} empty={!data.basics.summary} onSelect={() => onSelect({ section: "basics", field: "summary" })}>
           <p>{field(data.basics.summary, "Add a concise professional summary…", "Professional summary", basicsTarget("summary"), (value) => ({ type: "basics", field: "summary", value }), { multiline: true })}</p>
         </Section>
       )}
 
-      {visible(data.experience.length > 0) && (
-        <Section id="experience" title="Experience" editable={editable} empty={!data.experience.length} onSelect={() => onSelect({ section: "experience" })} onAdd={() => onAdd({ type: "experience" })}>
+      {sectionSettings.experience.enabled && visible(data.experience.length > 0) && (
+        <Section id="experience" title={sectionSettings.experience.title} editable={editable} empty={!data.experience.length} printEmpty={!experienceHasContent} onSelect={() => onSelect({ section: "experience" })} onAdd={() => onAdd({ type: "experience" })}>
           {data.experience.map((item) => (
             <div data-empty-entry={!([item.company, item.role, item.location, item.start, item.end, ...item.highlights].some(Boolean)) || undefined} className={cn("cv-entry cv-editable-entry", selection?.entryId === item.id && "is-selected")} key={item.id} onClick={() => onSelect({ section: "experience", entryId: item.id })}>
               {editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-entry-delete cv-editor-controls" aria-label={`Delete ${item.role || "experience"}`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "experience", id: item.id }); }}><Trash2 /></Button>}
@@ -134,8 +144,8 @@ export function ResumePreview({ data, template, font, editable = false, selectio
         </Section>
       )}
 
-      {visible(data.education.length > 0) && (
-        <Section id="education" title="Education" editable={editable} empty={!data.education.length} onSelect={() => onSelect({ section: "education" })} onAdd={() => onAdd({ type: "education" })}>
+      {sectionSettings.education.enabled && visible(data.education.length > 0) && (
+        <Section id="education" title={sectionSettings.education.title} editable={editable} empty={!data.education.length} printEmpty={!educationHasContent} onSelect={() => onSelect({ section: "education" })} onAdd={() => onAdd({ type: "education" })}>
           {data.education.map((item) => (
             <div data-empty-entry={!([item.school, item.degree, item.field, item.location, item.start, item.end, item.details].some(Boolean)) || undefined} className={cn("cv-entry cv-editable-entry", selection?.entryId === item.id && "is-selected")} key={item.id} onClick={() => onSelect({ section: "education", entryId: item.id })}>
               {editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-entry-delete cv-editor-controls" aria-label={`Delete ${item.school || "education"}`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "education", id: item.id }); }}><Trash2 /></Button>}
@@ -152,8 +162,8 @@ export function ResumePreview({ data, template, font, editable = false, selectio
         </Section>
       )}
 
-      {visible(data.publications.length > 0) && (
-        <Section id="publications" title="Publications" editable={editable} empty={!data.publications.length} onSelect={() => onSelect({ section: "publications" })} onAdd={() => onAdd({ type: "publication" })}>
+      {sectionSettings.publications.enabled && visible(data.publications.length > 0) && (
+        <Section id="publications" title={sectionSettings.publications.title} editable={editable} empty={!data.publications.length} printEmpty={!publicationsHaveContent} onSelect={() => onSelect({ section: "publications" })} onAdd={() => onAdd({ type: "publication" })}>
           {data.publications.map((item) => (
             <div data-empty-entry={!([item.authors, item.title, item.venue, item.year, item.url].some(Boolean)) || undefined} className={cn("cv-entry publication cv-editable-entry", selection?.entryId === item.id && "is-selected")} key={item.id} onClick={() => onSelect({ section: "publications", entryId: item.id })}>
               {editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-entry-delete cv-editor-controls" aria-label={`Delete ${item.title || "publication"}`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "publication", id: item.id }); }}><Trash2 /></Button>}
@@ -164,8 +174,8 @@ export function ResumePreview({ data, template, font, editable = false, selectio
         </Section>
       )}
 
-      {visible(data.projects.length > 0) && (
-        <Section id="projects" title="Selected Projects" editable={editable} empty={!data.projects.length} onSelect={() => onSelect({ section: "projects" })} onAdd={() => onAdd({ type: "project" })}>
+      {sectionSettings.projects.enabled && visible(data.projects.length > 0) && (
+        <Section id="projects" title={sectionSettings.projects.title} editable={editable} empty={!data.projects.length} printEmpty={!projectsHaveContent} onSelect={() => onSelect({ section: "projects" })} onAdd={() => onAdd({ type: "project" })}>
           {data.projects.map((item) => (
             <div data-empty-entry={!([item.name, item.role, item.date, item.description, item.url].some(Boolean)) || undefined} className={cn("cv-entry cv-editable-entry", selection?.entryId === item.id && "is-selected")} key={item.id} onClick={() => onSelect({ section: "projects", entryId: item.id })}>
               {editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-entry-delete cv-editor-controls" aria-label={`Delete ${item.name || "project"}`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "project", id: item.id }); }}><Trash2 /></Button>}
@@ -177,11 +187,36 @@ export function ResumePreview({ data, template, font, editable = false, selectio
         </Section>
       )}
 
-      {visible(data.skills.length > 0) && (
-        <Section id="skills" title="Skills" editable={editable} empty={!data.skills.length} onSelect={() => onSelect({ section: "skills" })} onAdd={() => onAdd({ type: "skill" })}>
+      {sectionSettings.skills.enabled && visible(data.skills.length > 0) && (
+        <Section id="skills" title={sectionSettings.skills.title} editable={editable} empty={!data.skills.length} printEmpty={!skillsHaveContent} onSelect={() => onSelect({ section: "skills" })} onAdd={() => onAdd({ type: "skill" })}>
           <p className="cv-skills">{data.skills.map((skill, index) => <span className="cv-skill" data-empty={!skill || undefined} key={`${index}-${skill}`}>{skill && data.skills.slice(0, index).some(Boolean) && <span className="cv-skill-separator"> · </span>}{field(skill, "Skill", "Skill", { section: "skills", field: "skills", index }, (value) => ({ type: "skill", index, value }), { editKey: `skills.${index}` })}{editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-skill-delete cv-editor-controls" aria-label={`Delete ${skill || "skill"}`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "skill", index }); }}><Trash2 /></Button>}</span>)}</p>
         </Section>
       )}
+
+      {customSections.map((section) => (
+        <Section
+          key={section.id}
+          id={`custom-${section.id}`}
+          title={section.title}
+          editable={editable}
+          empty={!section.items.length}
+          printEmpty={!section.items.some((item) => item.text)}
+          onSelect={() => onSelect({ section: "custom", sectionId: section.id })}
+          onAdd={() => onAdd({ type: "custom-item", sectionId: section.id })}
+        >
+          {section.items.map((item) => (
+            <div
+              key={item.id}
+              data-empty-entry={!item.text || undefined}
+              className={cn("cv-entry cv-editable-entry", selection?.section === "custom" && selection.sectionId === section.id && selection.entryId === item.id && "is-selected")}
+              onClick={() => onSelect({ section: "custom", sectionId: section.id, entryId: item.id, field: "text" })}
+            >
+              {editable && <Button type="button" variant="ghost" size="icon-xs" className="cv-entry-delete cv-editor-controls" aria-label={`Delete ${section.title} item`} onClick={(event) => { event.stopPropagation(); onDelete({ type: "custom-item", sectionId: section.id, id: item.id }); }}><Trash2 /></Button>}
+              <p>{field(item.text, "Add a detail…", `${section.title} item`, { section: "custom", sectionId: section.id, entryId: item.id, field: "text" }, (value) => ({ type: "custom-item", sectionId: section.id, id: item.id, value }), { multiline: true, editKey: `custom.${section.id}.${item.id}` })}</p>
+            </div>
+          ))}
+        </Section>
+      ))}
     </article>
   );
 }
