@@ -123,7 +123,7 @@
 .resume-font-arial { --resume-font: Arial, Helvetica, sans-serif; }
 .resume-font-garamond { --resume-font: Garamond, Georgia, "Times New Roman", serif; }
 .resume-font-cambria { --resume-font: Cambria, Georgia, "Times New Roman", serif; }
-.cv-header { padding-bottom: 13px; border-bottom: 2px solid #27272a; text-align: center; }
+.cv-header { padding-bottom: 13px; text-align: center; }
 .cv-header h1 { margin: 0; font-family: var(--resume-font); font-size: 26px; font-weight: 700; line-height: 1.05; letter-spacing: .025em; text-transform: uppercase; }
 .cv-headline { margin: 6px 0 0; font-weight: 700; letter-spacing: .02em; }
 .cv-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; margin: 6px 0 0; font-size: 9px; }
