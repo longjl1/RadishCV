@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/icons/resume-rabbit.png" alt="RadishCV rabbit icon" width="120" />
+</p>
+
 # RadishCV
 
 A local-first resume/CV builder with optional Kimi or DeepSeek editing. It accepts plain-text drafts or structured form input, renders three print-ready layouts, and exports PDF, text, or a restorable JSON backup.
